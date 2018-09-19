@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Exemplo Knockout</title>
+
+</head>
+<style>
+    .total {
+        padding: 0 2px
+    }
+    
+    input[type="checkout"] {
+        width: 15px;
+        height: 15px;
+    }
+    
+    .panel.panel-default {
+        border: 1px solid;
+        padding-bottom: 5vh
+    }
+    
+    .panel-heading {
+        background: #ccc;
+        padding: 7px;
+        padding-left: -15px !important;
+        padding-right: -15px !important;
+    }
+    
+    .panel-body {
+        padding: 15px;
+    }
+    
+    ul.list-group {
+        padding-bottom: 13px;
+    }
+    
+    .item-checked {
+        text-decoration: line-through;
+        color: #444;
+    }
+</style>
+
+<body>
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-10  col-sm-10 col-xs-offset-2 ">
+
+                <div class="panel panel-default ">
+                    <div class="panel-heading ">
+                        <h4>Knockout bindings</h4>
+                    </div>
+                    <div class="panel-body ">
+                        <div class="row ">
+                            <div class="col-xs-12 col-sm-12" data-bind="with: alerta">
+                                <div class="alert  alert-warning" data-bind="text: mensagem, 
+                                css:{'alert-danger': (tipo ==  'danger'), 'alert-info' : tipo == 'info', 'alert-warning' : tipo == 'warning'},
+                                visible: mostrar">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row ">
+                            <!--  col Esquerda-->
+                            <div class="col-xs-6 col-6 ">
+                                <strong>lista de itens</strong>
+
+                                <ul class="list-group" data-bind="foreach: lista">
+
+
+                                    <li class="list-group-item" data-bind="css: {'item-checked': $data.checado}">
+                                        <input type="checkbox" data-bind="checked: $data.checado" />
+                                        <!-- ko text: descricao -->
+                                        <!-- /ko -->
+
+
+
+                                    </li>
+
+                                </ul>
+
+
+
+
+                                <div class="col-xs-12 col-sm-12">
+                                    <div class="row ">
+                                        <div class="col-xs-2 col-sm-2  total ">Total</div>
+                                        <div class="col-xs-2 col-sm-2  total" data-bind="text: lista().length"></div>
+                                        <div class="col-xs-2 col-sm-2  total text-center "> <input type="checkbox">:</div>
+                                        <div class="col-xs-2 col-sm-2  total " data-bind="text: itensNaoChecado"></div>
+                                        <div class="col-xs-2 col-sm-2  total text-center "> <input type="checkbox" checked>:</div>
+                                        <div class="col-xs-2 col-sm-2  total" data-bind="text: itemChecados"></div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <!-- COl Direita -->
+                            <div class="col-xs-6 col-sm-6 ">
+                                <div class="row ">
+                                    <div class="col-xs-12 col-sm-12 "> <label>Descrição de Item</label> </div>
+                                    <div class="col-xs-12 col-sm-12 "> <input type="text" class="form-control input-sm" data-bind="value: desciraoItem"> </div>
+                                    <div class="col-xs-12 col-sm-12 "> <br></div>
+                                    <div class="col-xs-12 col-sm-12 "> <button class="btn btn-primary btn-block" data-bind="click: incluirItem"> Incluir Item
+                                        </button> </div>
+                                    <div class="col-xs-12 col-sm-12 "> <br> </div>
+                                    <div class="col-xs-12 col-sm-12">
+                                        <select class="form-control" data-bind="options: lista ,optionsText: 'descricao'"></select>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="knockout-3.4.2.js"></script>
+    <script type="text/javascript">
+        function AppViewModel() {
+            var self = this;
+            // {descricao: "", checado: false}
+            self.lista = ko.observableArray([]);
+
+            self.desciraoItem = ko.observable("");
+            self.alerta = ko.observable({
+                mostrar: false,
+                mensagem: "Formulario Pronto",
+                tipo: "info"
+            });
+
+            self.incluirItem = function() {
+                if (self.desciraoItem() == "")
+                    self.alerta({
+                        mostrar: true,
+                        mensagem: "Preencha o campo de descrição",
+                        tipo: "warning"
+                    });
+
+                else {
+
+
+                    self.lista.push({
+                        descricao: self.desciraoItem(),
+                        checado: ko.observable(false)
+                    })
+                    self.desciraoItem("");
+                    self.alerta({
+                        mostrar: true,
+                        mensagem: "Item Incluido ",
+                        tipo: "info"
+                    });
+                }
+
+
+
+
+            };
+            self.itemChecados = ko.pureComputed(function() {
+                var count = self.lista().filter(function(item) {
+                    return item.checado();
+                }).length;
+                return count;
+            });
+
+            self.itensNaoChecado = ko.pureComputed(function() {
+                var count = self.lista().filter(function(item) {
+                    return !item.checado();
+                }).length;
+                return count;
+
+            });
+
+        }
+
+        ko.applyBindings(new AppViewModel());
+    </script>
+</body>
